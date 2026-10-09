@@ -1,0 +1,23 @@
+{
+  "name": "phantom-grid-solana-dvp-core",
+  "version": "1.0.0",
+  "description": "PHANTOM GRID // Autonomous Solana DvP & FSM Settlement Engine with Web3.js v3 & @solana/kit",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^2.0.0",
+    "@solana/kit": "^2.0.0",
+    "@solana-program/token-2022": "^0.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "author": "Commander Jack Hu x PHANTOM GRID",
+  "license": "Apache-2.0"
+}
