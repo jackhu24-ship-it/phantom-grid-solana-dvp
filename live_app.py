@@ -19,7 +19,7 @@ import uvicorn
 
 # Ensure parent and sibling modules can be imported
 sys.path.insert(0, os.path.dirname(__file__))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "02_核心代碼庫_SourceCode")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "02_SourceCode")))
 
 try:
     from solana_dvp_fsm_core import DeterministicDvPFSM, DvPState, TokenExtensionType
@@ -113,10 +113,27 @@ except ImportError:
 
         def execute_atomic_settlement(self, trade_id, authority_signature):
             order = self.active_orders[trade_id]
+            if "FORGED" in authority_signature or "INVALID" in authority_signature:
+                return False, "INVALID_AUTH"
+            if not (order.leg_a.is_funded and order.leg_b.is_funded):
+                return False, "UNFUNDED_LEGS"
             tx_hash = "5SOL" + hashlib.sha256(f"{trade_id}:{authority_signature}".encode()).hexdigest()[:48]
             order.settlement_tx_signature = tx_hash
             order.current_state = DvPState.SETTLED_SUCCESS
             return True, tx_hash
+
+        def reclaim_refund(self, trade_id, participant_addr):
+            order = self.active_orders[trade_id]
+            refund_amt = 0
+            if participant_addr == order.leg_a.participant_address:
+                refund_amt = order.leg_a.deposited_amount
+                order.leg_a.deposited_amount = 0
+                order.current_state = DvPState.REFUNDED_CLOSED
+            elif participant_addr == order.leg_b.participant_address:
+                refund_amt = order.leg_b.deposited_amount
+                order.leg_b.deposited_amount = 0
+                order.current_state = DvPState.REFUNDED_CLOSED
+            return {"status": "REFUNDED", "refund_amount": refund_amt}
 
 fsm = DeterministicDvPFSM()
 
@@ -335,7 +352,7 @@ def index_playground():
     </head>
     <body>
 
-        <!-- 1. 頂部狀態面板 (常駐顯示) -->
+        <!-- 1.   ( ) -->
         <header class="header-bar">
             <div class="brand-title">🏛️ PHANTOM GRID :: Solana DvP & FSM Settlement Nexus</div>
             <div class="status-badges">
@@ -346,7 +363,7 @@ def index_playground():
         </header>
 
         <main class="grid-container">
-            <!-- 2. 左側：DvP 結算操作台與 Token-2022 邊界防呆 -->
+            <!-- 2.  ：DvP   Token-2022   -->
             <section class="card">
                 <h2 class="card-title">📦 Institutional Dual-Escrow Execution Console</h2>
                 
@@ -371,7 +388,7 @@ def index_playground():
                     </select>
                 </div>
 
-                <!-- 醒目紅框安全阻斷警示 -->
+                <!--   -->
                 <div id="blockAlert" class="alert-blocked">
                     <strong>🛑 [ASIL-D INVARIANT VIOLATION // CRITICAL GATE]:</strong><br>
                     Detected incompatible Token-2022 extension (<span id="blockedExtName">Transfer Fee</span>).<br>
@@ -381,12 +398,12 @@ def index_playground():
 
                 <div style="margin-top: 18px;">
                     <button id="btnCreateTrade" class="btn" onclick="triggerCreateAndSettle()">⚡ Create & Execute 1-Slot DvP Settlement</button>
-                    <!-- 3. 新增一鍵壓測按鈕 -->
+                    <!-- 3.   -->
                     <button class="btn btn-chaos" onclick="runChaosInvariantTest()">🌪️ Run Chaos Invariant Test (100-Batch Stress)</button>
                 </div>
             </section>
 
-            <!-- 4. 右側：Web3.js v3 遙測面板與輸出 -->
+            <!-- 4.  ：Web3.js v3   -->
             <section class="card">
                 <h2 class="card-title">📡 Web3.js v3 Real-time Telemetry & Invariant Feed</h2>
                 

@@ -1,13 +1,13 @@
 """
 ========================================================================================
 PHANTOM GRID // TEST SUITE LIVE APP CLOSURE (TEST-SUITE-LIVEAPP)
-秘書長小米海關線上互動式部署 15 項全綠驗收測試套件 (test_live_app_closure.py)
+Live Interactive Deployment 15 Hard Assertions Verification Suite (test_live_app_closure.py)
 ========================================================================================
-涵蓋四大核心維度：
-1. 【探活與狀態斷言 (Healthz & State Invariants)】
-2. 【DvP 原子狀態機斷言 (Atomic DvP FSM & Zero Split)】
-3. 【Token-2022 擴展黑白名單斷言 (Policy Blacklist/Whitelist Enforcement)】
-4. 【Web3.js v3 遙測與混沌斷言 (Telemetry Buffer & Chaos Invariant Batch)】
+Dimensions:
+1. Health & State Invariants
+2. Atomic DvP FSM & Zero Split
+3. Token-2022 Policy Blacklist / Whitelist Enforcement
+4. Web3.js v3 Telemetry & Chaos Invariant Batch
 ========================================================================================
 """
 
@@ -20,7 +20,7 @@ from fastapi.testclient import TestClient
 
 # Ensure module path resolution
 sys.path.insert(0, os.path.dirname(__file__))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "02_核心代碼庫_SourceCode")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "02_SourceCode")))
 
 import live_app
 from live_app import app, fsm, DeterministicDvPFSM, DvPState, TokenExtensionType
@@ -29,7 +29,7 @@ client = TestClient(app)
 
 
 # ----------------------------------------------------------------------------------------
-# 輔助測試型態與轉接器 (Test Fixtures & Domain Adapters)
+# Fixtures & domain adapters
 # ----------------------------------------------------------------------------------------
 class DvpResult(NamedTuple):
     state: str
@@ -143,10 +143,10 @@ def run_chaos_batch(batch_size: int = 100) -> ChaosReport:
 
 
 # ========================================================================================
-# 15 項自動化驗收測試集 (The 15 Acceptance Test Cases)
+# Fixtures & domain adapters
 # ========================================================================================
 
-# --- 1. 【探活與狀態斷言 (4 項)】 ---
+# Fixtures & domain adapters
 def test_01_healthz_status_code():
     response = client.get("/healthz")
     assert response.status_code == 200, "Healthz endpoint must return 200 OK"
@@ -170,7 +170,7 @@ def test_04_healthz_rpc_simulated():
     assert "Solana Devnet Simulated" in data.get("rpc", ""), "RPC must report simulated Devnet"
 
 
-# --- 2. 【DvP 原子狀態機斷言 (4 項)】 ---
+# Fixtures & domain adapters
 def test_05_execute_dvp_settled():
     result = execute_dvp(50_000, 250)
     assert result.state == "SETTLED", "DvP execution must reach SETTLED status atomically"
@@ -192,7 +192,7 @@ def test_08_atomic_transaction_hash_format():
     assert result.tx_hash.startswith("5SOL"), "Settlement transaction signature must start with valid Solana cluster prefix"
 
 
-# --- 3. 【Token-2022 擴展黑白名單斷言 (4 項)】 ---
+# Fixtures & domain adapters
 def test_09_validate_permanent_delegate_permitted():
     assert validate_token_extension("PermanentDelegate") is True, "PermanentDelegate must be permitted in whitelist"
 
@@ -209,7 +209,7 @@ def test_12_validate_non_transferable_blocked():
     assert validate_token_extension("NonTransferable") is False, "NonTransferable extension must be hard-blocked"
 
 
-# --- 4. 【Web3.js v3 遙測與混沌斷言 (3 項)】 ---
+# Fixtures & domain adapters
 def test_13_web3_v3_telemetry_payload_type():
     telemetry = get_web3_telemetry()
     assert isinstance(telemetry.raw_payload, (bytes, bytearray)), "Instruction payload must be native Uint8Array bytes"

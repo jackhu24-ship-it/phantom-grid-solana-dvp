@@ -39,7 +39,7 @@ class TokenExtensionType(Enum):
 
 
 # ========================================================================================
-# 2. Token-2022 擴展黑白名單客戶端前置校驗 (validate_token_extensions)
+# 2. Token-2022 Extension Client Pre-flight Whitelist/Blacklist Validation (validate_token_extensions)
 # ========================================================================================
 DISALLOWED_EXTENSIONS = {
     TokenExtensionType.DISALLOWED_TRANSFER_FEE,
@@ -68,8 +68,8 @@ ALLOWED_EXTENSIONS = {
 
 def validate_token_extensions(extension: Union[TokenExtensionType, str]) -> bool:
     """
-    客戶端前置 Token-2022 擴展安全性校驗門禁。
-    明確攔截 Transfer Fees（手續費滑點破壞原子守恆）與 Non-transferable（不可轉讓代幣）。
+     Token-2022 。
+     Transfer Fees（） Non-transferable（）。
     """
     if isinstance(extension, TokenExtensionType):
         if extension in DISALLOWED_EXTENSIONS:
@@ -83,7 +83,7 @@ def validate_token_extensions(extension: Union[TokenExtensionType, str]) -> bool
 
 
 # ========================================================================================
-# 1. Web3.js v3 規範：Uint8Array 資料處理、BigInt (int) 金額、KeyPairSigner 非同步調用
+# 1. Web3.js v3 ：Uint8Array 、BigInt (int) 、KeyPairSigner 
 # ========================================================================================
 @dataclass
 class TradeLeg:
@@ -298,7 +298,7 @@ class DeterministicDvPFSM:
 
     def reclaim_refund(self, trade_id: str, signer_addr: str) -> Dict[str, int]:
         """
-        Atomic Reclaim Mechanism (零資金鎖死保證).
+        Atomic Reclaim Mechanism ().
         When trade expires or counterparty defaults, depositor reclaims 100% funds.
         """
         order = self.active_orders.get(trade_id)

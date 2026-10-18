@@ -5,7 +5,9 @@ unauthorized refund attacks, and Token-2022 policy enforcement.
 """
 
 import sys
-import time
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent))
 from solana_dvp_fsm_core import DeterministicDvPFSM, DvPState, TokenExtensionType, validate_token_extensions
 
 

@@ -3,15 +3,15 @@
 """
 ========================================================================================
 PHANTOM GRID // SOURCE CODE CORE VERIFICATION SUITE (test_source_code.py)
-核心代碼庫四大強制斷言驗收腳本 (Web3.js v3 + Token-2022 + Atomic Reclaim + Pure Deps)
+Core Codebase Hard Assertions (Web3.js v3 + Token-2022 + Atomic Reclaim + Pure Deps)
 ========================================================================================
-必須通過的強制判定條件 (Hard Assertions):
-1. assert 1,500 次極限混沌壓測 100% 通過 (Zero Fault / 100.0% Reliability)
-2. assert 狀態機滿足 100% 不變量 (Zero Brain-Split Invariants 成立)
-3. assert 實裝 Token-2022 擴展黑名單校驗 (validate_token_extensions 剛性攔截)
-4. assert 補齊逾時原子回滾測試 (Atomic Reclaim Test 100% 零資金鎖死)
-5. assert 依賴清單 requirements.txt 與 package.json 純淨且無污染
-6. assert 核心算子/微內核延遲達標 (< 1.0 ms)
+Hard Assertions:
+1. assert 1,500 Extreme Chaos Stress Tests Pass 100% (Zero Fault / 100.0% Reliability)
+2. assert Deterministic State Machine satisfies 100% Invariants (Zero Brain-Split)
+3. assert Token-2022 Extension Blacklist Validation (validate_token_extensions strict gate)
+4. assert Timeout Atomic Reclaim Test (100% Zero Capital Lockup)
+5. assert Dependency list requirements.txt and package.json are pure and unpolluted
+6. assert Core kernel latency meets SLA (< 1.0 ms)
 ========================================================================================
 """
 
@@ -47,41 +47,35 @@ def audit_source_code() -> bool:
     print("\n" + "=" * 90)
     print("🏛️ PHANTOM GRID // SOURCE CODE FINAL AUDIT (02_SourceCode)")
     print("=========================================================================================")
-    print(f"{'檢查項目':<26} {'規範要求':<38} {'實測狀態':<14} {'判定'}")
+    print(f"{'Check Item':<26} {'Requirement':<38} {'Actual State':<14} {'Verdict'}")
     print("-" * 90)
 
-    # ---------------------------------------------------------
-    # 斷言 1: 1,500 次極限混沌壓測 100% 通過
-    # ---------------------------------------------------------
+    # 1. 1,500 Extreme Chaos Stress Tests
     chaos_pass = run_dvp_chaos_torture_test(1500)
-    status_1 = "1500/1500 通過" if chaos_pass else "混沌測試失敗"
-    print(f"{'1. 1,500次極限混沌壓測':<24} {'1,500 次循環 100% 零故障通過':<36} {status_1:<14} {'[✅ PASS]' if chaos_pass else '[❌ FAIL]'}")
-    assert chaos_pass, "[FAIL] 1,500 次極限混沌壓測未達成 100% 通過"
+    status_1 = "1500/1500 Passed" if chaos_pass else "Chaos Failed"
+    print(f"{'1. 1,500 Chaos Stress Tests':<24} {'1,500 Cycles 100% Zero Fault':<36} {status_1:<14} {'[✅ PASS]' if chaos_pass else '[❌ FAIL]'}")
+    assert chaos_pass, "[FAIL] 1,500 Chaos Stress Tests failed to achieve 100% pass rate"
 
-    # ---------------------------------------------------------
-    # 斷言 2: Web3.js v3 規範 (Uint8Array, BigInt, KeyPairSigner async)
-    # ---------------------------------------------------------
+    # 2. Web3.js v3 Specification (Uint8Array, BigInt, KeyPairSigner async)
     fsm = DeterministicDvPFSM()
     buyer = "Buyer_Web3v3_Kit"
     seller = "Seller_Web3v3_Kit"
     order = fsm.create_trade(buyer, seller, "USDC_MINT", 100_000_000_000, "SOL_MINT", 500_000_000_000)
 
     # Check Uint8Array & BigInt
-    assert isinstance(order.instruction_payload_bytes, bytearray), "[FAIL] Payload 不是 Uint8Array (bytearray)"
-    assert isinstance(order.leg_a.account_data_buffer, bytearray), "[FAIL] 帳戶資料不是 Uint8Array"
-    assert isinstance(order.expiry_timestamp_ns, int), "[FAIL] 時間戳不是 BigInt 奈秒"
-    assert isinstance(order.leg_a.amount_raw, int), "[FAIL] 金額不是 BigInt"
+    assert isinstance(order.instruction_payload_bytes, bytearray), "[FAIL] Payload is not Uint8Array (bytearray)"
+    assert isinstance(order.leg_a.account_data_buffer, bytearray), "[FAIL] Account buffer is not Uint8Array"
+    assert isinstance(order.expiry_timestamp_ns, int), "[FAIL] Timestamp is not BigInt ns"
+    assert isinstance(order.leg_a.amount_raw, int), "[FAIL] Amount is not BigInt"
 
     # KeyPairSigner async verification
     signer = KeyPairSigner("TEST_SIGNER")
     sig = asyncio.run(signer.sign_message_async(order.instruction_payload_bytes))
-    assert isinstance(sig, bytearray) and len(sig) == 64, "[FAIL] KeyPairSigner 產出不是 64-byte Uint8Array"
+    assert isinstance(sig, bytearray) and len(sig) == 64, "[FAIL] KeyPairSigner output is not 64-byte Uint8Array"
 
-    print(f"{'2. Web3.js v3 與 Signer':<22} {'Uint8Array/BigInt/KeyPairSigner':<36} {'全原生零拷貝':<14} {'[✅ PASS]'}")
+    print(f"{'2. Web3.js v3 & Signer':<24} {'Uint8Array/BigInt/KeyPairSigner':<36} {'Zero-Copy Native':<14} {'[✅ PASS]'}")
 
-    # ---------------------------------------------------------
-    # 斷言 3: Token-2022 擴展黑白名單客戶端校驗
-    # ---------------------------------------------------------
+    # 3. Token-2022 Blacklist Validation
     assert validate_token_extensions("PermanentDelegate") is True
     assert validate_token_extensions("TransferHook") is True
     assert validate_token_extensions("Pausable") is True
@@ -90,45 +84,39 @@ def audit_source_code() -> bool:
     assert validate_token_extensions(TokenExtensionType.DISALLOWED_TRANSFER_FEE) is False
     assert validate_token_extensions(TokenExtensionType.DISALLOWED_NON_TRANSFERABLE) is False
 
-    print(f"{'3. Token-2022 黑名單校驗':<22} {'validate_token_extensions 剛性阻斷':<36} {'黑白名單嚴格':<14} {'[✅ PASS]'}")
+    print(f"{'3. Token-2022 Blacklist':<24} {'Blocks Fee / Non-Transfer Mints':<36} {'Active & Safe':<14} {'[✅ PASS]'}")
 
-    # ---------------------------------------------------------
-    # 斷言 4: 逾時原子回滾測試 (Atomic Reclaim 100% 零資金鎖死)
-    # ---------------------------------------------------------
+    # 4. Timeout Atomic Reclaim
     reclaim_order = fsm.create_trade(buyer, seller, "USDC_MINT", 75_000_000_000, "SOL_MINT", 300_000_000_000)
     fsm.fund_leg(reclaim_order.trade_id, buyer, 75_000_000_000)
     assert reclaim_order.current_state == DvPState.LEG_A_LOCKED
 
-    # 逾時觸發退款
+    # Trigger timeout refund
     reclaim_order.expiry_timestamp_ns = time.time_ns() - 10_000_000_000
     refund = fsm.reclaim_refund(reclaim_order.trade_id, buyer)
-    assert refund["refund_amount"] == 75_000_000_000, "[FAIL] 退款金額不守恆"
-    assert reclaim_order.current_state == DvPState.REFUNDED_CLOSED, "[FAIL] 狀態未遷移至 REFUNDED_CLOSED"
-    assert reclaim_order.leg_a.deposited_amount == 0, "[FAIL] 資金未歸零"
+    assert refund["refund_amount"] == 75_000_000_000, "[FAIL] Refund amount not conserved"
+    assert reclaim_order.current_state == DvPState.REFUNDED_CLOSED, "[FAIL] State did not transition to REFUNDED_CLOSED"
+    assert reclaim_order.leg_a.deposited_amount == 0, "[FAIL] Deposited amount not zeroed"
 
-    print(f"{'4. 逾時原子回滾斷言':<24} {'Atomic Reclaim 100% 零資金鎖死':<36} {'資金原路返還':<14} {'[✅ PASS]'}")
+    print(f"{'4. Timeout Atomic Reclaim':<24} {'Atomic Reclaim Zero Lockup':<36} {'Reclaim OK':<14} {'[✅ PASS]'}")
 
-    # ---------------------------------------------------------
-    # 斷言 5: 純淨依賴清單 requirements.txt & package.json
-    # ---------------------------------------------------------
+    # 5. Pure Dependencies
     req_file = curr_dir / "requirements.txt"
     pkg_file = curr_dir / "package.json"
-    assert req_file.exists(), "[FAIL] requirements.txt 不存在"
-    assert pkg_file.exists(), "[FAIL] package.json 不存在"
+    assert req_file.exists(), "[FAIL] requirements.txt not found"
+    assert pkg_file.exists(), "[FAIL] package.json not found"
 
     lines = [line.strip() for line in req_file.read_text(encoding="utf-8").splitlines() if line.strip() and not line.startswith("#")]
     disallowed_deps = ["torch", "tensorflow", "transformers", "flask", "django"]
     contaminated = [dep for dep in lines if any(d in dep.lower() for d in disallowed_deps)]
-    assert not contaminated, f"[FAIL] 依賴包含多餘肥大庫: {contaminated}"
+    assert not contaminated, f"[FAIL] Dependencies contain bloated/unapproved libraries: {contaminated}"
 
     pkg_text = pkg_file.read_text(encoding="utf-8")
-    assert "@solana/web3.js" in pkg_text and "@solana/kit" in pkg_text, "[FAIL] package.json 未鎖定 @solana/kit 與 Web3.js v3"
+    assert "@solana/web3.js" in pkg_text and "@solana/kit" in pkg_text, "[FAIL] package.json missing @solana/kit or @solana/web3.js"
 
-    print(f"{'5. 純淨依賴清單驗證':<24} {'requirements.txt & package.json 純淨':<36} {'鎖定 Web3.js v3':<14} {'[✅ PASS]'}")
+    print(f"{'5. Pure Dependencies':<24} {'requirements.txt & package.json Pure':<36} {'Web3.js v3 Locked':<14} {'[✅ PASS]'}")
 
-    # ---------------------------------------------------------
-    # 斷言 6: 核心算子/微內核延遲達標 (< 1.0 ms)
-    # ---------------------------------------------------------
+    # 6. Microkernel Latency SLA
     perf_fsm = DeterministicDvPFSM()
     rounds = 500
     t0 = time.perf_counter()
@@ -140,11 +128,11 @@ def audit_source_code() -> bool:
     t1 = time.perf_counter()
     avg_latency_ms = ((t1 - t0) / rounds) * 1000.0
 
-    print(f"{'6. 微內核延遲性能':<24} {'單筆完整結算執行 < 1.0 ms':<36} {f'{avg_latency_ms:.3f} ms':<14} {'[✅ PASS]'}")
-    assert avg_latency_ms < 1.0, f"[FAIL] 結算延遲超標: {avg_latency_ms:.3f} ms >= 1.0 ms"
+    print(f"{'6. Microkernel Latency':<24} {'Single Settlement Execution < 1.0 ms':<36} {f'{avg_latency_ms:.3f} ms':<14} {'[✅ PASS]'}")
+    assert avg_latency_ms < 1.0, f"[FAIL] Settlement latency exceeded SLA: {avg_latency_ms:.3f} ms >= 1.0 ms"
 
     print("=" * 90)
-    print("✅ 02_核心代碼庫_SourceCode 六大強制判定條件全綠 PASS！")
+    print("✅ 02_SourceCode Six Mandatory Assertions ALL PASS!")
     print("=" * 90 + "\n")
     return True
 
